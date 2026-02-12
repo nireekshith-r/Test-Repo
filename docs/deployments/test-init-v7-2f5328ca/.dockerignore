@@ -1,0 +1,35 @@
+# Node modules and dependencies
+node_modules
+npm-debug.log
+
+# Logs
+logs
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Git files
+.git
+.gitignore
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+
+# Test files
+__tests__
+*.spec.js
+*.test.js
+
+# Build artifacts
+dist
+build
+coverage
+
+# Docker files
+Dockerfile
+docker-compose.yml
