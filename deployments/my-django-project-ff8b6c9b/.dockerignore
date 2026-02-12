@@ -1,0 +1,30 @@
+# Python artifacts
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Virtual environment
+venv/
+env/
+
+# Git files
+.git
+.gitignore
+
+# IDE configurations
+*.vscode/
+*.idea/
+
+# Local environment files
+*.env
+*.env.*
+
+# Test files
+tests/
+*.log
+
+# Other unnecessary files
+*.DS_Store
+*.swp
+*.swo
