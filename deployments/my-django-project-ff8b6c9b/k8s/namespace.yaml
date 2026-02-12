@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: my-django-app
-  labels:
-    name: my-django-app
