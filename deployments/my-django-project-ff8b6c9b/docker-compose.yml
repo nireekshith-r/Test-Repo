@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  my-django-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: "My-django-app.settings"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512Mi
+          cpus: "0.5"
+    restart: always
+    command: ["gunicorn", "--bind", "0.0.0.0:8000", "My-django-app.wsgi:application"]
