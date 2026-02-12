@@ -1,25 +1,30 @@
-# Exclude Python cache files
-__pycache__/
+# Python artifacts
 *.pyc
 *.pyo
+*.pyd
+__pycache__/
 
-# Exclude virtual environments
+# Virtual environment
 venv/
-.env/
+env/
 
-# Exclude version control files
-.git/
+# Git files
+.git
 .gitignore
 
-# Exclude IDE and editor config files
+# IDE configurations
 *.vscode/
 *.idea/
 
-# Exclude test and documentation files
-tests/
-docs/
+# Local environment files
+*.env
+*.env.*
 
-# Exclude other unnecessary files
+# Test files
+tests/
 *.log
-*.tmp
-*.bak
+
+# Other unnecessary files
+*.DS_Store
+*.swp
+*.swo

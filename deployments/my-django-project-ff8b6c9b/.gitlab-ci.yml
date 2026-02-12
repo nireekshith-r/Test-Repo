@@ -1,0 +1,39 @@
+stages:
+  - build
+  - test
+  - security
+  - deploy
+
+variables:
+  DOCKER_IMAGE: registry.gitlab.com/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME
+
+build:
+  stage: build
+  script:
+    - python -m pip install --upgrade pip
+    - pip install -r requirements.txt
+  artifacts:
+    paths:
+      - .cache/pip
+
+test:
+  stage: test
+  script:
+    - python manage.py test
+
+security:
+  stage: security
+  script:
+    - pip install bandit
+    - bandit -r .
+
+deploy:
+  stage: deploy
+  environment:
+    name: production
+    url: https://my-django-app.azurewebsites.net
+  script:
+    - az aks get-credentials --resource-group my-resource-group --name my-aks-cluster
+    - kubectl apply -f k8s/deployment.yaml
+  only:
+    - main

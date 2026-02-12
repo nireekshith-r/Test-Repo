@@ -1,0 +1,113 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: my-django-app-rules
+  namespace: monitoring
+  labels:
+    app: My-django-app
+    team: platform
+spec:
+  groups:
+  - name: my-django-app-recording-rules
+    rules:
+    - record: my_django_app:request_rate
+      expr: sum(rate(http_requests_total{app="My-django-app"}[1m]))
+      labels:
+        app: My-django-app
+    - record: my_django_app:error_rate
+      expr: sum(rate(http_requests_total{app="My-django-app", status=~"4..|5.."}[1m]))
+      labels:
+        app: My-django-app
+    - record: my_django_app:latency:p50
+      expr: histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{app="My-django-app"}[1m])) by (le))
+      labels:
+        app: My-django-app
+    - record: my_django_app:latency:p95
+      expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{app="My-django-app"}[1m])) by (le))
+      labels:
+        app: My-django-app
+    - record: my_django_app:latency:p99
+      expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{app="My-django-app"}[1m])) by (le))
+      labels:
+        app: My-django-app
+    - record: my_django_app:cpu_usage
+      expr: sum(rate(container_cpu_usage_seconds_total{app="My-django-app"}[1m]))
+      labels:
+        app: My-django-app
+    - record: my_django_app:memory_usage
+      expr: sum(container_memory_usage_bytes{app="My-django-app"})
+      labels:
+        app: My-django-app
+
+  - name: my-django-app-alerting-rules
+    rules:
+    - alert: HighErrorRate
+      expr: my_django_app:error_rate / my_django_app:request_rate > 0.05
+      for: 5m
+      labels:
+        severity: warning
+        app: My-django-app
+      annotations:
+        summary: "High error rate detected for My-django-app"
+        description: "Error rate is above 5% for the last 5 minutes. Investigate the application logs."
+        runbook: "https://runbook.example.com/high-error-rate"
+    - alert: HighLatency
+      expr: my_django_app:latency:p99 > 1
+      for: 5m
+      labels:
+        severity: warning
+        app: My-django-app
+      annotations:
+        summary: "High latency detected for My-django-app"
+        description: "p99 latency is above 1 second for the last 5 minutes."
+        runbook: "https://runbook.example.com/high-latency"
+    - alert: PodNotReady
+      expr: kube_pod_status_ready{condition="false", app="My-django-app"} > 0
+      for: 5m
+      labels:
+        severity: critical
+        app: My-django-app
+      annotations:
+        summary: "Pod not ready for My-django-app"
+        description: "One or more pods are not ready for the last 5 minutes."
+        runbook: "https://runbook.example.com/pod-not-ready"
+    - alert: PodCrashLooping
+      expr: rate(kube_pod_container_status_restarts_total{app="My-django-app"}[10m]) > 5
+      for: 10m
+      labels:
+        severity: critical
+        app: My-django-app
+      annotations:
+        summary: "Pod crash looping detected for My-django-app"
+        description: "One or more pods are restarting frequently."
+        runbook: "https://runbook.example.com/pod-crash-looping"
+    - alert: HighMemoryUsage
+      expr: my_django_app:memory_usage / sum(machine_memory_bytes) > 0.9
+      for: 5m
+      labels:
+        severity: warning
+        app: My-django-app
+      annotations:
+        summary: "High memory usage detected for My-django-app"
+        description: "Memory usage is above 90% for the last 5 minutes."
+        runbook: "https://runbook.example.com/high-memory-usage"
+    - alert: HighCPUUsage
+      expr: my_django_app:cpu_usage / sum(machine_cpu_cores) > 0.8
+      for: 10m
+      labels:
+        severity: warning
+        app: My-django-app
+      annotations:
+        summary: "High CPU usage detected for My-django-app"
+        description: "CPU usage is above 80% for the last 10 minutes."
+        runbook: "https://runbook.example.com/high-cpu-usage"
+    - alert: EndpointDown
+      expr: up{job="My-django-app"} == 0
+      for: 2m
+      labels:
+        severity: critical
+        app: My-django-app
+      annotations:
+        summary: "Endpoint down for My-django-app"
+        description: "The /health endpoint is not responding."
+        runbook: "https://runbook.example.com/endpoint-down"
